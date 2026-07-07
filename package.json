@@ -1,0 +1,13 @@
+{
+  "name": "my-task-cli",
+  "version": "0.1.0",
+  "bin": {
+    "task": "dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}
