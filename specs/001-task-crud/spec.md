@@ -69,6 +69,8 @@ runs.
    **Then** a clear "not found" error is shown and nothing changes.
 4. **Given** a completed task, **When** the user re-opens it by its identifier, **Then** its state
    returns to "pending" and the change is confirmed and persists across runs.
+5. **Given** a task that is already pending, **When** the user re-opens it, **Then** the tool reports
+   it was already pending and makes no harmful change.
 
 ---
 
@@ -156,12 +158,17 @@ other tasks remain, and the deletion persists across runs.
   identifiers.
 - **Unknown identifier**: Any operation referencing a non-existent identifier fails with a clear
   "not found" message and a non-zero result, changing nothing.
+- **Malformed identifier input**: An identifier argument that is not a positive integer (e.g.,
+  non-numeric, zero, or negative) is rejected with a clear input error, distinct from "not found".
 - **Whitespace/empty title**: Rejected on add and on edit.
 - **Invalid priority value**: Rejected with a message listing accepted values (high, medium, low).
-- **Duplicate or empty tags**: Repeated tags on one task are de-duplicated; empty tag values are
-  ignored or rejected clearly.
-- **Corrupt or unreadable data**: The tool reports the problem clearly and refuses to
-  overwrite/destroy existing data rather than starting from scratch silently.
+- **Conflicting edit flags**: Supplying both set-and-clear for the same attribute (priority or tags)
+  is rejected with a clear error.
+- **Duplicate or empty tags**: Repeated tags on one task are de-duplicated case-insensitively (first
+  casing kept); empty/whitespace-only tag values are ignored. Tag filtering is case-insensitive.
+- **Corrupt, unreadable, or structurally invalid data**: If the store cannot be parsed or is missing
+  required fields, the tool reports the problem clearly and refuses to overwrite/destroy existing
+  data rather than starting from scratch silently.
 - **Overlapping invocations**: If two invocations run at nearly the same time, the store must not be
   left half-written or corrupted.
 - **First run**: When no data exists yet, the tool behaves as an empty store and creates storage on
@@ -187,27 +194,40 @@ other tasks remain, and the deletion persists across runs.
   tasks; completed tasks are included only when the user requests them via an explicit flag (e.g.
   `--all`) or an explicit state filter.
 - **FR-007**: The tool MUST allow the user to filter the listing by state, by priority, and by tag,
-  individually or in combination, returning only tasks matching all supplied filters.
+  individually or in combination, returning only tasks matching all supplied filters. Filter
+  matching for state, priority, and tag values MUST be case-insensitive and exact (not substring).
 - **FR-008**: The tool MUST allow the user to mark a task as completed by its identifier, and MUST
   allow the user to re-open a completed task by its identifier, setting its state back to pending.
 - **FR-009**: The tool MUST allow the user to edit an existing task's title, priority, and/or tags
   by its identifier, leaving the identifier and unspecified attributes unchanged. An edit MUST
   request at least one attribute change; an edit that changes nothing is rejected with a clear error.
+  Mutually exclusive options (setting a priority vs clearing it; replacing tags vs clearing them)
+  MUST NOT be supplied together; doing so is rejected with a clear error.
 - **FR-010**: The tool MUST allow the user to permanently remove a task by its identifier.
 - **FR-011**: The tool MUST persist all tasks and their attributes in a single per-user store
   located in the user's home configuration location, so that the same tasks are available in all
-  subsequent runs regardless of the working directory from which the tool is invoked.
+  subsequent runs regardless of the working directory from which the tool is invoked. The store
+  location MUST be overridable via an environment variable so tests and power users can redirect it.
 - **FR-012**: The tool MUST validate inputs and reject invalid operations (empty title, invalid
   priority, unknown identifier) with a clear, actionable error message and without modifying stored
   data.
 - **FR-013**: The tool MUST report success and failure distinctly so that both a human reading the
-  output and an automated script can tell whether an operation succeeded.
+  output and an automated script can tell whether an operation succeeded. Successful results go to
+  standard output and all errors/diagnostics go to standard error. Exit codes MUST be meaningful and
+  distinguish success from user errors (invalid input, not found) from internal errors (I/O, corrupt
+  store), and no internal stack traces are shown to the user under normal operation.
 - **FR-014**: The tool MUST protect stored data against loss or corruption on write, including when
   a write is interrupted or two invocations overlap.
 - **FR-015**: The tool MUST provide machine-readable (`--json`) output for every command, in
   addition to a human-readable default, so any operation can be driven from scripts. For `list` this
   is a JSON array of tasks; for mutating commands it is the affected task (or a removal result); for
   errors it is a JSON error object.
+- **FR-016**: The tool MUST provide built-in usage help that documents every command and its
+  options; invoking the tool with no command, or with an explicit help request, MUST display this
+  help and succeed.
+- **FR-017**: The persisted store MUST carry a schema version so a newer version of the tool can
+  read data written by an older one via an automatic migration that preserves every task; a store
+  written by a newer, unrecognized version MUST be refused clearly rather than misread.
 
 ### Key Entities
 
@@ -224,8 +244,8 @@ other tasks remain, and the deletion persists across runs.
 
 ### Measurable Outcomes
 
-- **SC-001**: A user can add a task and confirm it in the list in under 10 seconds using a single
-  command each.
+- **SC-001**: A user can add a task with one command and see it in the listing with one more
+  command, with no additional steps and no manual file editing in between.
 - **SC-002**: 100% of tasks added persist and reappear correctly after the tool is closed and run
   again.
 - **SC-003**: A user can locate a specific subset of tasks (e.g., pending high-priority tasks with a
@@ -252,7 +272,8 @@ other tasks remain, and the deletion persists across runs.
   or deleted-but-recoverable state in this feature. Both transitions are supported: pending →
   completed and completed → pending (re-open). (Clarified 2026-07-06.)
 - **Tags are free-form**: Tags are simple text labels with no predefined taxonomy, hierarchy, or
-  per-tag metadata.
+  per-tag metadata. Tag comparison (for de-duplication and filtering) is case-insensitive, while the
+  original casing the user typed is preserved for display.
 - **Identifier scheme**: The stable identifier is a sequential number from a monotonic,
   non-reusing counter, short enough to type by hand to reference a task in other commands.
   (Clarified 2026-07-06.)
