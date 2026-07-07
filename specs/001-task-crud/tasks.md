@@ -29,9 +29,9 @@ Single-project CLI (per plan.md): source in `src/`, tests in `tests/` at repo ro
 
 **Purpose**: Project skeleton and test harness
 
-- [ ] T001 Create source/test directory structure: `src/cli/commands/`, `src/domain/`, `src/storage/`, `src/output/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `tests/helpers/`
-- [ ] T002 Add `vitest.config.ts` at repo root and ensure `tsconfig.json` type-checks test files; add `"engines": { "node": ">=18" }` to `package.json`; confirm `npm test` / `npm run build` / `npm run dev` work end-to-end
-- [ ] T003 [P] Create hermetic store test helper in `tests/helpers/tempStore.ts` that sets `MY_TASK_CLI_STORE` to a fresh temp file and exposes a `runCli(args)` helper capturing stdout/stderr/exit code
+- [X] T001 Create source/test directory structure: `src/cli/commands/`, `src/domain/`, `src/storage/`, `src/output/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `tests/helpers/`
+- [X] T002 Add `vitest.config.ts` at repo root and ensure `tsconfig.json` type-checks test files; add `"engines": { "node": ">=18" }` to `package.json`; confirm `npm test` / `npm run build` / `npm run dev` work end-to-end
+- [X] T003 [P] Create hermetic store test helper in `tests/helpers/tempStore.ts` that sets `MY_TASK_CLI_STORE` to a fresh temp file and exposes a `runCli(args)` helper capturing stdout/stderr/exit code
 
 ---
 
@@ -43,23 +43,23 @@ Single-project CLI (per plan.md): source in `src/`, tests in `tests/` at repo ro
 
 ### Tests for Foundational (write first, must FAIL) ⚠️
 
-- [ ] T004 [P] Unit tests for Task validation/normalization (empty/whitespace title rejected, priority vocabulary, tag trim + case-insensitive de-dup) in `tests/unit/domain/task.test.ts`
-- [ ] T005 [P] Unit tests for store path resolution (per-OS config dir + `MY_TASK_CLI_STORE` override) in `tests/unit/storage/paths.test.ts`
-- [ ] T006 [P] Unit tests for schema: first-run empty store, migration registry upgrades old version, corrupt/unknown-version file is refused (never overwritten) in `tests/unit/storage/schema.test.ts`
-- [ ] T007 [P] Unit tests for repository atomic write (temp+rename) and exclusive lock under overlapping writes (no lost update / no corruption) in `tests/unit/storage/repository.test.ts`
-- [ ] T008 [P] Unit tests for output formatters covering ALL `contracts/cli.md` JSON shapes: human table, `list` JSON array, single task object, `remove` result `{removed,id}`, and JSON error object `{error:{code,message}}` in `tests/unit/output/format.test.ts`
-- [ ] T009 [P] Unit tests for `collection.find(id)` (found + NotFoundError) in `tests/unit/domain/collection.test.ts`
+- [X] T004 [P] Unit tests for Task validation/normalization (empty/whitespace title rejected, priority vocabulary, tag trim + case-insensitive de-dup) in `tests/unit/domain/task.test.ts`
+- [X] T005 [P] Unit tests for store path resolution (per-OS config dir + `MY_TASK_CLI_STORE` override) in `tests/unit/storage/paths.test.ts`
+- [X] T006 [P] Unit tests for schema: first-run empty store, migration registry upgrades old version, corrupt/unknown-version file is refused (never overwritten) in `tests/unit/storage/schema.test.ts`
+- [X] T007 [P] Unit tests for repository atomic write (temp+rename) and exclusive lock under overlapping writes (no lost update / no corruption) in `tests/unit/storage/repository.test.ts`
+- [X] T008 [P] Unit tests for output formatters covering ALL `contracts/cli.md` JSON shapes: human table, `list` JSON array, single task object, `remove` result `{removed,id}`, and JSON error object `{error:{code,message}}` in `tests/unit/output/format.test.ts`
+- [X] T009 [P] Unit tests for `collection.find(id)` (found + NotFoundError) in `tests/unit/domain/collection.test.ts`
 
 ### Implementation for Foundational
 
-- [ ] T010 [P] Define `Task`, `Priority`, `State` types and pure validation/normalization in `src/domain/task.ts`
-- [ ] T011 [P] Define typed errors (`ValidationError`, `NotFoundError`, `StorageError`) and exit-code mapping (1 user / 2 internal) in `src/domain/errors.ts`
-- [ ] T012 [P] Implement OS-aware store path with `MY_TASK_CLI_STORE` override in `src/storage/paths.ts`
-- [ ] T013 Implement on-disk schema `{version,nextId,tasks[]}`, migration registry, and corrupt-file refusal in `src/storage/schema.ts` (depends on T010)
-- [ ] T014 Implement repository `load()`/`save()` with atomic temp+rename and exclusive lock (retry ~50 ms w/ jitter up to ~2 s → "store is locked" internal error exit 2; reclaim stale lock older than ~30 s; release in `finally`) in `src/storage/repository.ts` (depends on T012, T013)
-- [ ] T015 [P] Implement human and JSON formatters plus a shared `--json` result/error serializer (task object, list array, `{removed,id}`, `{error:{code,message}}`) in `src/output/format.ts` (depends on T010)
-- [ ] T016 Create `taskCollection.ts` scaffold: in-memory container over the store plus `find(id)` in `src/domain/taskCollection.ts` (depends on T010, T011)
-- [ ] T017 Implement CLI entry + router skeleton: argv parse via `node:util.parseArgs`, global `--json` flag recognized for every command, command dispatch, help stub, and error→exit-code handling that emits human or JSON errors per `--json` in `src/index.ts`, `src/cli/router.ts`, `src/cli/args.ts` (depends on T011, T014, T015)
+- [X] T010 [P] Define `Task`, `Priority`, `State` types and pure validation/normalization in `src/domain/task.ts`
+- [X] T011 [P] Define typed errors (`ValidationError`, `NotFoundError`, `StorageError`) and exit-code mapping (1 user / 2 internal) in `src/domain/errors.ts`
+- [X] T012 [P] Implement OS-aware store path with `MY_TASK_CLI_STORE` override in `src/storage/paths.ts`
+- [X] T013 Implement on-disk schema `{version,nextId,tasks[]}`, migration registry, and corrupt-file refusal in `src/storage/schema.ts` (depends on T010)
+- [X] T014 Implement repository `load()`/`save()` with atomic temp+rename and exclusive lock (retry ~50 ms w/ jitter up to ~2 s → "store is locked" internal error exit 2; reclaim stale lock older than ~30 s; release in `finally`) in `src/storage/repository.ts` (depends on T012, T013)
+- [X] T015 [P] Implement human and JSON formatters plus a shared `--json` result/error serializer (task object, list array, `{removed,id}`, `{error:{code,message}}`) in `src/output/format.ts` (depends on T010)
+- [X] T016 Create `taskCollection.ts` scaffold: in-memory container over the store plus `find(id)` in `src/domain/taskCollection.ts` (depends on T010, T011)
+- [X] T017 Implement CLI entry + router skeleton: argv parse via `node:util.parseArgs`, global `--json` flag recognized for every command, command dispatch, help stub, and error→exit-code handling that emits human or JSON errors per `--json` in `src/index.ts`, `src/cli/router.ts`, `src/cli/args.ts` (depends on T011, T014, T015)
 
 **Checkpoint**: Foundation ready — user stories can now be implemented.
 
@@ -74,19 +74,19 @@ invocation, and confirm all appear with id/state/priority/tags unchanged.
 
 ### Tests for User Story 1 (write first, must FAIL) ⚠️
 
-- [ ] T018 [P] [US1] Contract test `task add` (accepts title/`--priority`/repeated `--tag`; rejects empty title and invalid priority; confirms new id in human output; `--json` returns the created task object; `--json` error emits `{error:{code,message}}` on stderr) in `tests/contract/add.test.ts`
-- [ ] T019 [P] [US1] Contract test `task list` default (pending only) and `--json` output shape in `tests/contract/list.test.ts`
-- [ ] T020 [P] [US1] Integration test: add multiple tasks then list, and verify persistence across a second CLI invocation in `tests/integration/add-list.test.ts`
-- [ ] T021 [P] [US1] Unit test `collection.add` (assigns sequential id from `nextId`, defaults state=pending/priority=null/tags=[]) in `tests/unit/domain/add.test.ts`
-- [ ] T022 [P] [US1] Unit test `collection.list` default (pending only, no filters) in `tests/unit/domain/list.test.ts`
+- [X] T018 [P] [US1] Contract test `task add` (accepts title/`--priority`/repeated `--tag`; rejects empty title and invalid priority; confirms new id in human output; `--json` returns the created task object; `--json` error emits `{error:{code,message}}` on stderr) in `tests/contract/add.test.ts`
+- [X] T019 [P] [US1] Contract test `task list` default (pending only) and `--json` output shape in `tests/contract/list.test.ts`
+- [X] T020 [P] [US1] Integration test: add multiple tasks then list, and verify persistence across a second CLI invocation in `tests/integration/add-list.test.ts`
+- [X] T021 [P] [US1] Unit test `collection.add` (assigns sequential id from `nextId`, defaults state=pending/priority=null/tags=[]) in `tests/unit/domain/add.test.ts`
+- [X] T022 [P] [US1] Unit test `collection.list` default (pending only, no filters) in `tests/unit/domain/list.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T023 [US1] Implement `collection.add(title, priority?, tags?)` in `src/domain/taskCollection.ts` (depends on T016)
-- [ ] T024 [US1] Implement `collection.list()` default pending view in `src/domain/taskCollection.ts`
-- [ ] T025 [US1] Implement `add` command (parse flags incl. `--json`, validate, save, confirm id in human mode or emit created task object in JSON) in `src/cli/commands/add.ts`
-- [ ] T026 [US1] Implement `list` command (human table + `--json`) in `src/cli/commands/list.ts`
-- [ ] T027 [US1] Register `add` and `list` in `src/cli/router.ts`
+- [X] T023 [US1] Implement `collection.add(title, priority?, tags?)` in `src/domain/taskCollection.ts` (depends on T016)
+- [X] T024 [US1] Implement `collection.list()` default pending view in `src/domain/taskCollection.ts`
+- [X] T025 [US1] Implement `add` command (parse flags incl. `--json`, validate, save, confirm id in human mode or emit created task object in JSON) in `src/cli/commands/add.ts`
+- [X] T026 [US1] Implement `list` command (human table + `--json`) in `src/cli/commands/list.ts`
+- [X] T027 [US1] Register `add` and `list` in `src/cli/router.ts`
 
 **Checkpoint**: MVP — add and list fully functional and persistent.
 
@@ -101,16 +101,16 @@ pending again; both changes persist.
 
 ### Tests for User Story 2 (write first, must FAIL) ⚠️
 
-- [ ] T028 [P] [US2] Contract test `complete`/`reopen` (success; already-in-state no-op notice; unknown id → exit 1; `--json` returns the updated task object, incl. no-op case; `--json` error emits `{error:{code,message}}`) in `tests/contract/complete-reopen.test.ts`
-- [ ] T029 [P] [US2] Integration test: complete then reopen, verifying state + `completedAt` persist across runs in `tests/integration/complete-reopen.test.ts`
-- [ ] T030 [P] [US2] Unit test `collection.complete`/`reopen` (sets/clears `completedAt`, no-op when already in target state) in `tests/unit/domain/complete-reopen.test.ts`
+- [X] T028 [P] [US2] Contract test `complete`/`reopen` (success; already-in-state no-op notice; unknown id → exit 1; `--json` returns the updated task object, incl. no-op case; `--json` error emits `{error:{code,message}}`) in `tests/contract/complete-reopen.test.ts`
+- [X] T029 [P] [US2] Integration test: complete then reopen, verifying state + `completedAt` persist across runs in `tests/integration/complete-reopen.test.ts`
+- [X] T030 [P] [US2] Unit test `collection.complete`/`reopen` (sets/clears `completedAt`, no-op when already in target state) in `tests/unit/domain/complete-reopen.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Implement `collection.complete(id)` and `collection.reopen(id)` in `src/domain/taskCollection.ts`
-- [ ] T032 [P] [US2] Implement `complete` command (human confirmation or `--json` task object) in `src/cli/commands/complete.ts`
-- [ ] T033 [P] [US2] Implement `reopen` command (human confirmation or `--json` task object) in `src/cli/commands/reopen.ts`
-- [ ] T034 [US2] Register `complete` and `reopen` in `src/cli/router.ts`
+- [X] T031 [US2] Implement `collection.complete(id)` and `collection.reopen(id)` in `src/domain/taskCollection.ts`
+- [X] T032 [P] [US2] Implement `complete` command (human confirmation or `--json` task object) in `src/cli/commands/complete.ts`
+- [X] T033 [P] [US2] Implement `reopen` command (human confirmation or `--json` task object) in `src/cli/commands/reopen.ts`
+- [X] T034 [US2] Register `complete` and `reopen` in `src/cli/router.ts`
 
 **Checkpoint**: US1 + US2 both independently functional.
 
@@ -125,14 +125,14 @@ matching tasks appear; a non-matching filter yields a clear empty result (exit 0
 
 ### Tests for User Story 3 (write first, must FAIL) ⚠️
 
-- [ ] T035 [P] [US3] Contract test list filters (`--state`, `--all`, `--priority`, repeated `--tag`, combined) in `tests/contract/list-filters.test.ts`
-- [ ] T036 [P] [US3] Integration test filtered listing across mixed states/priorities/tags in `tests/integration/list-filters.test.ts`
-- [ ] T037 [P] [US3] Unit test `collection.list` filters (case-insensitive exact, AND semantics, empty result) in `tests/unit/domain/filters.test.ts`
+- [X] T035 [P] [US3] Contract test list filters (`--state`, `--all`, `--priority`, repeated `--tag`, combined) in `tests/contract/list-filters.test.ts`
+- [X] T036 [P] [US3] Integration test filtered listing across mixed states/priorities/tags in `tests/integration/list-filters.test.ts`
+- [X] T037 [P] [US3] Unit test `collection.list` filters (case-insensitive exact, AND semantics, empty result) in `tests/unit/domain/filters.test.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T038 [US3] Extend `collection.list` with state/priority/tag filters in `src/domain/taskCollection.ts`
-- [ ] T039 [US3] Extend `list` command and filter arg parsing/validation in `src/cli/commands/list.ts` and `src/cli/args.ts`
+- [X] T038 [US3] Extend `collection.list` with state/priority/tag filters in `src/domain/taskCollection.ts`
+- [X] T039 [US3] Extend `list` command and filter arg parsing/validation in `src/cli/commands/list.ts` and `src/cli/args.ts`
 
 **Checkpoint**: US1–US3 independently functional.
 
@@ -148,14 +148,14 @@ change, id stays, and changes persist.
 
 ### Tests for User Story 4 (write first, must FAIL) ⚠️
 
-- [ ] T040 [P] [US4] Contract test `edit` (`--title`, `--priority`/`--clear-priority`, `--tag`/`--clear-tags`; no-change-flags error; empty title/invalid priority → exit 1; unknown id → exit 1; `--json` returns the updated task object; `--json` error emits `{error:{code,message}}`) in `tests/contract/edit.test.ts`
-- [ ] T041 [P] [US4] Integration test: edit persists and leaves id + untouched fields unchanged in `tests/integration/edit.test.ts`
-- [ ] T042 [P] [US4] Unit test `collection.edit` partial updates (clear priority → null, replace tags exactly) in `tests/unit/domain/edit.test.ts`
+- [X] T040 [P] [US4] Contract test `edit` (`--title`, `--priority`/`--clear-priority`, `--tag`/`--clear-tags`; no-change-flags error; empty title/invalid priority → exit 1; unknown id → exit 1; `--json` returns the updated task object; `--json` error emits `{error:{code,message}}`) in `tests/contract/edit.test.ts`
+- [X] T041 [P] [US4] Integration test: edit persists and leaves id + untouched fields unchanged in `tests/integration/edit.test.ts`
+- [X] T042 [P] [US4] Unit test `collection.edit` partial updates (clear priority → null, replace tags exactly) in `tests/unit/domain/edit.test.ts`
 
 ### Implementation for User Story 4
 
-- [ ] T043 [US4] Implement `collection.edit(id, changes)` in `src/domain/taskCollection.ts`
-- [ ] T044 [US4] Implement `edit` command (human confirmation or `--json` updated task object) and register it in `src/cli/commands/edit.ts` and `src/cli/router.ts`
+- [X] T043 [US4] Implement `collection.edit(id, changes)` in `src/domain/taskCollection.ts`
+- [X] T044 [US4] Implement `edit` command (human confirmation or `--json` updated task object) and register it in `src/cli/commands/edit.ts` and `src/cli/router.ts`
 
 **Checkpoint**: US1–US4 independently functional.
 
@@ -170,14 +170,14 @@ and a later `add` does not reuse the removed id.
 
 ### Tests for User Story 5 (write first, must FAIL) ⚠️
 
-- [ ] T045 [P] [US5] Contract test `remove` (success confirmation; unknown id → exit 1; single-target only; `--json` returns `{removed:true,id}`; `--json` error emits `{error:{code,message}}`) in `tests/contract/remove.test.ts`
-- [ ] T046 [P] [US5] Integration test: remove persists and a subsequent add does not reuse the removed id (`nextId` intact) in `tests/integration/remove.test.ts`
-- [ ] T047 [P] [US5] Unit test `collection.remove` (task gone, `nextId` unchanged) in `tests/unit/domain/remove.test.ts`
+- [X] T045 [P] [US5] Contract test `remove` (success confirmation; unknown id → exit 1; single-target only; `--json` returns `{removed:true,id}`; `--json` error emits `{error:{code,message}}`) in `tests/contract/remove.test.ts`
+- [X] T046 [P] [US5] Integration test: remove persists and a subsequent add does not reuse the removed id (`nextId` intact) in `tests/integration/remove.test.ts`
+- [X] T047 [P] [US5] Unit test `collection.remove` (task gone, `nextId` unchanged) in `tests/unit/domain/remove.test.ts`
 
 ### Implementation for User Story 5
 
-- [ ] T048 [US5] Implement `collection.remove(id)` in `src/domain/taskCollection.ts`
-- [ ] T049 [US5] Implement `remove` command (human confirmation or `--json` `{removed:true,id}`) and register it in `src/cli/commands/remove.ts` and `src/cli/router.ts`
+- [X] T048 [US5] Implement `collection.remove(id)` in `src/domain/taskCollection.ts`
+- [X] T049 [US5] Implement `remove` command (human confirmation or `--json` `{removed:true,id}`) and register it in `src/cli/commands/remove.ts` and `src/cli/router.ts`
 
 **Checkpoint**: All user stories independently functional.
 
@@ -187,13 +187,13 @@ and a later `add` does not reuse the removed id.
 
 **Purpose**: Cross-story quality, docs, and final validation
 
-- [ ] T050 [P] Complete help/usage text for all commands (and no-arg → help) in `src/cli/commands/help.ts` and `src/cli/router.ts`
-- [ ] T051 [P] Add `README.md` with install and usage examples for every command
-- [ ] T052 [P] Remove the unused `nanoid` dependency from `package.json` and `package-lock.json` (sequential ids chosen — Principle IV minimal deps)
-- [ ] T053 [P] Edge-case unit sweep (duplicate titles remain distinct, empty store message, all-completed default list, whitespace/duplicate tags) in `tests/unit/domain/edge-cases.test.ts`
-- [ ] T054 Run `npm run build` (strict, zero type errors) and `npm test` (all green); refactor duplication across command handlers
-- [ ] T055 Execute `quickstart.md` end-to-end against a temp store and confirm behavior matches `contracts/cli.md` (per /verify)
-- [ ] T056 [P] Create `CHANGELOG.md` with the initial release entry documenting the task CLI commands and the on-disk store `version: 1` (Constitution Development Workflow DoD #4 / Principle V)
+- [X] T050 [P] Complete help/usage text for all commands (and no-arg → help) in `src/cli/commands/help.ts` and `src/cli/router.ts`
+- [X] T051 [P] Add `README.md` with install and usage examples for every command
+- [X] T052 [P] Remove the unused `nanoid` dependency from `package.json` and `package-lock.json` (sequential ids chosen — Principle IV minimal deps)
+- [X] T053 [P] Edge-case unit sweep (duplicate titles remain distinct, empty store message, all-completed default list, whitespace/duplicate tags) in `tests/unit/domain/edge-cases.test.ts`
+- [X] T054 Run `npm run build` (strict, zero type errors) and `npm test` (all green); refactor duplication across command handlers
+- [X] T055 Execute `quickstart.md` end-to-end against a temp store and confirm behavior matches `contracts/cli.md` (per /verify)
+- [X] T056 [P] Create `CHANGELOG.md` with the initial release entry documenting the task CLI commands and the on-disk store `version: 1` (Constitution Development Workflow DoD #4 / Principle V)
 
 ---
 
