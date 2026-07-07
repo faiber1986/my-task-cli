@@ -5,6 +5,15 @@
 **Status**: Draft
 **Input**: User description: "Gestión de tareas por línea de comandos con el binario `task`. El usuario puede: agregar una tarea con un título y, opcionalmente, una prioridad (alta/media/baja) y una o más etiquetas; listar las tareas viendo su estado, prioridad y etiquetas, con posibilidad de filtrar por estado, por prioridad y por etiqueta; marcar una tarea como completada; editar el título, la prioridad o las etiquetas de una tarea existente; y eliminar una tarea. Cada tarea tiene un identificador estable para poder referenciarla. Las tareas se guardan de forma persistente entre ejecuciones. El objetivo es una herramienta personal confiable para uso diario."
 
+## Clarifications
+
+### Session 2026-07-06
+
+- Q: What stable identifier scheme do tasks use? → A: Sequential number from a monotonic counter that never reuses numbers (deleting task 2 does not free the number 2).
+- Q: What does `list` show by default (no filters)? → A: Only pending tasks; completed tasks are shown via an explicit flag (e.g. `--all`) or the state filter.
+- Q: Can a completed task be re-opened (set back to pending)? → A: Yes; completion is reversible via an explicit re-open action.
+- Q: Where is the task store persisted (persistence scope)? → A: A single per-user store in the user's home configuration location, shared across all working directories.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Capture and review tasks (Priority: P1)
@@ -58,6 +67,8 @@ runs.
    the tool reports it was already completed and makes no harmful change.
 3. **Given** no task matches the given identifier, **When** the user attempts to complete it,
    **Then** a clear "not found" error is shown and nothing changes.
+4. **Given** a completed task, **When** the user re-opens it by its identifier, **Then** its state
+   returns to "pending" and the change is confirmed and persists across runs.
 
 ---
 
@@ -139,6 +150,8 @@ other tasks remain, and the deletion persists across runs.
 ### Edge Cases
 
 - **Empty store**: Listing when no tasks exist communicates "no tasks" clearly, not an error.
+- **All tasks completed**: A default listing (pending-only) when every task is completed shows an
+  empty result clearly; the completed tasks are still retrievable via the explicit flag/filter.
 - **Duplicate titles**: Two tasks may share the same title; they remain distinct via their
   identifiers.
 - **Unknown identifier**: Any operation referencing a non-existent identifier fails with a clear
@@ -164,19 +177,25 @@ other tasks remain, and the deletion persists across runs.
 - **FR-003**: The tool MUST allow the user to optionally assign one or more tags when adding a task;
   if omitted, the task has no tags.
 - **FR-004**: The tool MUST assign every task a stable identifier that does not change for the life
-  of the task and is used to reference it in all other operations.
+  of the task and is used to reference it in all other operations. Identifiers are sequential
+  numbers drawn from a monotonic counter that never reuses a number, so a removed task's identifier
+  is never reassigned to a different task.
 - **FR-005**: Every task MUST have a state that is either "pending" or "completed"; newly added
   tasks start as "pending".
 - **FR-006**: The tool MUST allow the user to list tasks, showing for each its identifier, title,
-  state, priority (or an explicit "none"), and tags.
+  state, priority (or an explicit "none"), and tags. By default the listing shows only pending
+  tasks; completed tasks are included only when the user requests them via an explicit flag (e.g.
+  `--all`) or an explicit state filter.
 - **FR-007**: The tool MUST allow the user to filter the listing by state, by priority, and by tag,
   individually or in combination, returning only tasks matching all supplied filters.
-- **FR-008**: The tool MUST allow the user to mark a task as completed by its identifier.
+- **FR-008**: The tool MUST allow the user to mark a task as completed by its identifier, and MUST
+  allow the user to re-open a completed task by its identifier, setting its state back to pending.
 - **FR-009**: The tool MUST allow the user to edit an existing task's title, priority, and/or tags
   by its identifier, leaving the identifier and unspecified attributes unchanged.
 - **FR-010**: The tool MUST allow the user to permanently remove a task by its identifier.
-- **FR-011**: The tool MUST persist all tasks and their attributes so that data added in one run is
-  available in all subsequent runs.
+- **FR-011**: The tool MUST persist all tasks and their attributes in a single per-user store
+  located in the user's home configuration location, so that the same tasks are available in all
+  subsequent runs regardless of the working directory from which the tool is invoked.
 - **FR-012**: The tool MUST validate inputs and reject invalid operations (empty title, invalid
   priority, unknown identifier) with a clear, actionable error message and without modifying stored
   data.
@@ -221,18 +240,18 @@ other tasks remain, and the deletion persists across runs.
 
 - **Single user, single machine**: This is a personal tool; there is exactly one user and one local
   task store. Multi-user, sync, and networked access are out of scope for this feature.
-- **Storage location**: Tasks are stored locally in a single persistent location owned by the tool;
-  the user does not manage the storage file manually.
+- **Storage location**: Tasks are stored in a single per-user store in the user's home
+  configuration location (resolved by the OS convention for user config), shared across all working
+  directories; the user does not manage the storage file manually. (Clarified 2026-07-06.)
 - **Priority vocabulary**: The accepted priorities are exactly high, medium, and low; there is no
   numeric or custom priority scheme in this feature.
 - **Two states only**: Tasks are either pending or completed; there is no "in progress", archived,
-  or deleted-but-recoverable state in this feature.
+  or deleted-but-recoverable state in this feature. Both transitions are supported: pending →
+  completed and completed → pending (re-open). (Clarified 2026-07-06.)
 - **Tags are free-form**: Tags are simple text labels with no predefined taxonomy, hierarchy, or
   per-tag metadata.
-- **Identifier is user-facing**: The stable identifier is short enough to type by hand to reference
-  a task in other commands.
-- **Re-opening a task**: Marking a completed task pending again is treated as a natural extension of
-  editing; the core completion flow is one-way in this spec and re-opening can be refined during
-  planning if in scope.
+- **Identifier scheme**: The stable identifier is a sequential number from a monotonic,
+  non-reusing counter, short enough to type by hand to reference a task in other commands.
+  (Clarified 2026-07-06.)
 - **No due dates/reminders**: Scheduling, due dates, and notifications are out of scope for this
   feature and may be addressed in a later spec.
