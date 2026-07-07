@@ -30,7 +30,7 @@ Single-project CLI (per plan.md): source in `src/`, tests in `tests/` at repo ro
 **Purpose**: Project skeleton and test harness
 
 - [ ] T001 Create source/test directory structure: `src/cli/commands/`, `src/domain/`, `src/storage/`, `src/output/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `tests/helpers/`
-- [ ] T002 Add `vitest.config.ts` at repo root and ensure `tsconfig.json` type-checks test files; confirm `npm test` / `npm run build` / `npm run dev` work end-to-end
+- [ ] T002 Add `vitest.config.ts` at repo root and ensure `tsconfig.json` type-checks test files; add `"engines": { "node": ">=18" }` to `package.json`; confirm `npm test` / `npm run build` / `npm run dev` work end-to-end
 - [ ] T003 [P] Create hermetic store test helper in `tests/helpers/tempStore.ts` that sets `MY_TASK_CLI_STORE` to a fresh temp file and exposes a `runCli(args)` helper capturing stdout/stderr/exit code
 
 ---
@@ -56,7 +56,7 @@ Single-project CLI (per plan.md): source in `src/`, tests in `tests/` at repo ro
 - [ ] T011 [P] Define typed errors (`ValidationError`, `NotFoundError`, `StorageError`) and exit-code mapping (1 user / 2 internal) in `src/domain/errors.ts`
 - [ ] T012 [P] Implement OS-aware store path with `MY_TASK_CLI_STORE` override in `src/storage/paths.ts`
 - [ ] T013 Implement on-disk schema `{version,nextId,tasks[]}`, migration registry, and corrupt-file refusal in `src/storage/schema.ts` (depends on T010)
-- [ ] T014 Implement repository `load()`/`save()` with atomic temp+rename and exclusive lock (retry + bounded timeout, release in `finally`) in `src/storage/repository.ts` (depends on T012, T013)
+- [ ] T014 Implement repository `load()`/`save()` with atomic temp+rename and exclusive lock (retry ~50 ms w/ jitter up to ~2 s → "store is locked" internal error exit 2; reclaim stale lock older than ~30 s; release in `finally`) in `src/storage/repository.ts` (depends on T012, T013)
 - [ ] T015 [P] Implement human and JSON formatters plus a shared `--json` result/error serializer (task object, list array, `{removed,id}`, `{error:{code,message}}`) in `src/output/format.ts` (depends on T010)
 - [ ] T016 Create `taskCollection.ts` scaffold: in-memory container over the store plus `find(id)` in `src/domain/taskCollection.ts` (depends on T010, T011)
 - [ ] T017 Implement CLI entry + router skeleton: argv parse via `node:util.parseArgs`, global `--json` flag recognized for every command, command dispatch, help stub, and error→exit-code handling that emits human or JSON errors per `--json` in `src/index.ts`, `src/cli/router.ts`, `src/cli/args.ts` (depends on T011, T014, T015)
@@ -193,6 +193,7 @@ and a later `add` does not reuse the removed id.
 - [ ] T053 [P] Edge-case unit sweep (duplicate titles remain distinct, empty store message, all-completed default list, whitespace/duplicate tags) in `tests/unit/domain/edge-cases.test.ts`
 - [ ] T054 Run `npm run build` (strict, zero type errors) and `npm test` (all green); refactor duplication across command handlers
 - [ ] T055 Execute `quickstart.md` end-to-end against a temp store and confirm behavior matches `contracts/cli.md` (per /verify)
+- [ ] T056 [P] Create `CHANGELOG.md` with the initial release entry documenting the task CLI commands and the on-disk store `version: 1` (Constitution Development Workflow DoD #4 / Principle V)
 
 ---
 

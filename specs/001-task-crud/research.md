@@ -34,8 +34,10 @@ record the technical choices behind the plan.
 
 - **Decision**: On save, serialize the whole store, write to a temp file in the same directory, then
   `fs.rename` over the target (atomic on the same filesystem). Guard read-modify-write cycles with an
-  exclusive lock file created via `fs.open(..., 'wx')`; on contention, retry with short backoff and a
-  bounded timeout, then fail clearly. Always release the lock in a `finally`.
+  exclusive lock file created via `fs.open(..., 'wx')`; on contention, retry every ~50 ms with small
+  jitter up to a bounded total of ~2 s, then fail clearly with a "store is locked" internal error
+  (exit 2). Treat a stale lock older than ~30 s as abandoned and reclaim it. Always release the lock
+  in a `finally`.
 - **Rationale**: Principle III requires no corruption on interrupted or overlapping writes. Temp+rename
   guarantees readers never see a partial file; the exclusive lock serializes concurrent invocations so
   one run's update cannot clobber another's. Both use only `node:fs`.

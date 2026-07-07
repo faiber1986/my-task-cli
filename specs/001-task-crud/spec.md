@@ -191,7 +191,8 @@ other tasks remain, and the deletion persists across runs.
 - **FR-008**: The tool MUST allow the user to mark a task as completed by its identifier, and MUST
   allow the user to re-open a completed task by its identifier, setting its state back to pending.
 - **FR-009**: The tool MUST allow the user to edit an existing task's title, priority, and/or tags
-  by its identifier, leaving the identifier and unspecified attributes unchanged.
+  by its identifier, leaving the identifier and unspecified attributes unchanged. An edit MUST
+  request at least one attribute change; an edit that changes nothing is rejected with a clear error.
 - **FR-010**: The tool MUST allow the user to permanently remove a task by its identifier.
 - **FR-011**: The tool MUST persist all tasks and their attributes in a single per-user store
   located in the user's home configuration location, so that the same tasks are available in all
