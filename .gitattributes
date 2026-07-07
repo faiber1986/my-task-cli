@@ -1,0 +1,2 @@
+# spec-kit bash scripts must keep LF endings to run under Git Bash on Windows
+*.sh text eol=lf
