@@ -203,8 +203,10 @@ other tasks remain, and the deletion persists across runs.
   output and an automated script can tell whether an operation succeeded.
 - **FR-014**: The tool MUST protect stored data against loss or corruption on write, including when
   a write is interrupted or two invocations overlap.
-- **FR-015**: The tool MUST provide machine-readable output for the listing so it can be used from
-  scripts, in addition to a human-readable default.
+- **FR-015**: The tool MUST provide machine-readable (`--json`) output for every command, in
+  addition to a human-readable default, so any operation can be driven from scripts. For `list` this
+  is a JSON array of tasks; for mutating commands it is the affected task (or a removal result); for
+  errors it is a JSON error object.
 
 ### Key Entities
 

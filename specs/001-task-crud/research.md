@@ -88,9 +88,15 @@ record the technical choices behind the plan.
 ## 8. Output formats
 
 - **Decision**: Default output is human-readable (aligned columns for `list`; concise confirmations for
-  mutations). `list --json` emits a stable JSON array of task objects to stdout. All diagnostics/errors
-  go to stderr. Exit codes: `0` success; `1` user error (validation, not-found); `2` internal error
-  (I/O, corrupt store, lock timeout).
-- **Rationale**: Principle I (scriptable text protocol, human + machine formats, meaningful exit codes).
-- **Alternatives considered**: JSON-only (worse day-to-day UX); `--json` on every command (only `list`
-  has a machine-consumption need per the spec — FR-015 — so keep surface minimal per YAGNI).
+  mutations). **`--json` is supported on every command** (Constitution Principle I): `list --json`
+  emits a JSON array of task objects; `add`/`complete`/`reopen`/`edit --json` emit the affected task
+  object; `remove --json` emits `{ "removed": true, "id": <id> }`. Errors under `--json` emit
+  `{ "error": { "code", "message" } }` to stderr. All diagnostics/errors go to stderr. Exit codes:
+  `0` success; `1` user error (validation, not-found); `2` internal error (I/O, corrupt store, lock
+  timeout). A shared `--json` handling helper keeps this uniform across commands.
+- **Rationale**: Principle I mandates that every command support human-readable output by default and
+  machine-readable output via `--json` so the tool composes in scripts and pipelines. A single shared
+  serializer keeps the surface small (Principle IV) while satisfying the MUST.
+- **Alternatives considered**: `--json` only on `list` (rejected — conflicts with Principle I's
+  "every command MUST support `--json`"; flagged CRITICAL by `/speckit.analyze`); JSON-only output
+  (worse day-to-day UX).

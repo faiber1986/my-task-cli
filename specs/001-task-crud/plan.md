@@ -41,8 +41,10 @@ interrupted or overlapping invocations; minimal runtime dependencies (YAGNI).
 Constitution v1.0.0 — evaluated per principle:
 
 - **I. CLI-First Experience** — PASS. Design routes primary output to stdout and errors to stderr,
-  provides `--json` on `list`, defines distinct exit codes (0 success, non-zero with a code for
-  user vs internal errors), and mandates actionable error messages (no raw stack traces).
+  provides `--json` on **every** command (list → array; add/complete/reopen/edit → task object;
+  remove → `{removed,id}`; errors → JSON error object on stderr), defines distinct exit codes
+  (0 success, 1 user error, 2 internal error), and mandates actionable error messages (no raw stack
+  traces). A shared JSON serializer keeps the surface uniform and small.
 - **II. Test-First (NON-NEGOTIABLE)** — PASS (enforced in Phase 2 tasks). Every unit of domain
   logic and every command ships with vitest tests written first (Red → Green → Refactor). Contract
   and integration tests are generated before the corresponding implementation tasks.
